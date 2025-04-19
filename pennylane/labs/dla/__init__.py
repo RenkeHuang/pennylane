@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 r"""
-Experimental Lie theory features
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Experimental dynamical Lie algebra (DLA) functionality
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. currentmodule:: pennylane.labs.dla
 
 .. autosummary::
     :toctree: api
 
-    ~lie_closure_dense
-    ~structure_constants_dense
+    ~recursive_cartan_decomp
+    ~variational_kak_adj
 
 
 Utility functions
@@ -32,27 +32,24 @@ Utility functions
 .. autosummary::
     :toctree: api
 
-    ~adjvec_to_op
-    ~change_basis_ad_rep
-    ~check_orthonormal
-    ~op_to_adjvec
     ~orthonormalize
     ~pauli_coefficients
     ~batched_pauli_decompose
-    ~trace_inner_product
+    ~check_orthonormal
+    ~validate_kak
+    ~run_opt
 
 
 """
 
-from .lie_closure_dense import lie_closure_dense
-from .structure_constants_dense import structure_constants_dense
+from .recursive_cartan_decomp import (
+    recursive_cartan_decomp,
+)
 from .dense_util import (
-    change_basis_ad_rep,
+    check_orthonormal,
     pauli_coefficients,
     batched_pauli_decompose,
     orthonormalize,
-    check_orthonormal,
-    trace_inner_product,
-    adjvec_to_op,
-    op_to_adjvec,
 )
+
+from .variational_kak import validate_kak, variational_kak_adj, run_opt

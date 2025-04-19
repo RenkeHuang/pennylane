@@ -575,12 +575,10 @@ class TestMidCircuitMeasurements:
             "1: ──RX(0.50)───║─────────┤↗├─├●─────┤↗├────├●─────║─├●────────────────────┤ │     \n"
             "2: ─────────────║──────────║──├●──Z───║──╭X─├○─────║─│───────────────────H─┤ ╰<Z@Z>\n"
             "3: ─────────────║──────────║──╰○──║───║──╰●─╰SWAP──║─╰●──┤↗₀├──RX(1.23)──║─┤       \n"
-            "                ╚══════════║═══╬══║═══║══════╝     ║      ║    ║         ║         \n"
-            "                           ╚═══╩══╩═══║════════════╬══════║════║═════════╣         \n"
-            "                                      ╚════════════╝      ║    ║         ║         \n"
-            "                                                          ╚════╩═════════╝         "
+            "                ╚══════════║═══╬══║═══║══════╝     ║      ╚════╩═════════╣         \n"
+            "                           ╚═══╩══╩═══║════════════╬═════════════════════╝         \n"
+            "                                      ╚════════════╝                               "
         )
-
         assert drawing == expected_drawing
 
     def test_single_meas_multi_cond_split_lines(self):
@@ -723,16 +721,14 @@ class TestMidCircuitMeasurements:
             "3: ─────────────║──────────║──╰○──║───║──╰●─╰SWAP──║─╰●\n"
             "                ╚══════════║═══╬══║═══║══════╝     ║   \n"
             "                           ╚═══╩══╩═══║════════════╬═══\n"
-            "                                      ╚════════════╝   \n"
-            "                                                       \n\n"
+            "                                      ╚════════════╝   \n\n"
             "─────────────────────┤ ╭<Z@Z>\n"
             "─────────────────────┤ │     \n"
             "───────────────────H─┤ ╰<Z@Z>\n"
             "───┤↗₀├──RX(1.23)──║─┤       \n"
-            "    ║    ║         ║         \n"
-            "════║════║═════════╣         \n"
-            "    ║    ║         ║         \n"
-            "    ╚════╩═════════╝         "
+            "    ╚════╩═════════╣         \n"
+            "═══════════════════╝         \n"
+            "                             "
         )
 
         assert drawing == expected_drawing
@@ -984,33 +980,6 @@ def test_draw_batch_transform():
 
     expected = "0: ──H──RX(0.8)─┤  <Z>\n\n0: ──H──RX(0.4)─┤  <Z>"
     assert draw(circ, decimals=1)(pnp.array(0.6, requires_grad=True)) == expected
-
-
-@pytest.mark.skip("Nested tapes are being deprecated")
-def test_nested_tapes():
-    """Test nested tapes inside the qnode."""
-
-    @qml.qnode(qml.device("default.qubit", wires=1))
-    def circ():
-        with qml.queuing.AnnotatedQueue():
-            qml.PauliX(0)
-            with qml.queuing.AnnotatedQueue():
-                qml.PauliY(0)
-        with qml.queuing.AnnotatedQueue():
-            qml.PauliZ(0)
-            with qml.queuing.AnnotatedQueue():
-                qml.PauliX(0)
-        return qml.expval(qml.PauliZ(0))
-
-    expected = (
-        "0: ──Tape:0──Tape:1─┤  <Z>\n\n"
-        "Tape:0\n0: ──X──Tape:2─┤  \n\n"
-        "Tape:2\n0: ──Y─┤  \n\n"
-        "Tape:1\n0: ──Z──Tape:3─┤  \n\n"
-        "Tape:3\n0: ──X─┤  "
-    )
-
-    assert draw(circ)() == expected
 
 
 def test_applied_transforms():

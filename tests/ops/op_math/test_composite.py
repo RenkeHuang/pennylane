@@ -251,7 +251,7 @@ def _assert_method_no_recursion_error(instance, method_name):
         getattr(instance, method_name)()
     except Exception as e:  # pylint: disable=broad-except
         assert not isinstance(e, RecursionError)
-        if isinstance(e, RuntimeError):
+        if isinstance(e, RuntimeError) and not isinstance(e, NotImplementedError):
             assert "This is likely due to nesting too many levels" in str(e)
 
 
@@ -261,7 +261,7 @@ def _assert_property_no_recursion_error(instance, property_name):
         getattr(instance, property_name)
     except Exception as e:  # pylint: disable=broad-except
         assert not isinstance(e, RecursionError)
-        if isinstance(e, RuntimeError):
+        if isinstance(e, RuntimeError) and not isinstance(e, NotImplementedError):
             assert "This is likely due to nesting too many levels" in str(e)
 
 
@@ -408,15 +408,9 @@ class TestProperties:
                 qml.prod(qml.PauliX(4), qml.PauliY(3), qml.PauliZ(8)),
             ],
         ]
-
-        # TODO: Use qml.equal when supported for nested operators
-
         for list_op1, list_op2 in zip(overlapping_ops, valid_op.overlapping_ops):
             for op1, op2 in zip(list_op1, list_op2):
-                assert op1.name == op2.name
-                assert op1.wires == op2.wires
-                assert op1.data == op2.data
-                assert op1.arithmetic_depth == op2.arithmetic_depth
+                qml.assert_equal(op1, op2)
 
     def test_overlapping_ops_private_attribute(self):
         """Test that the private `_overlapping_ops` attribute gets updated after a call to

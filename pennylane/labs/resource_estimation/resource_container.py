@@ -14,12 +14,12 @@
 r"""Base classes for resource estimation."""
 import copy
 from collections import defaultdict
-from dataclasses import dataclass
 
+from pennylane.decomposition.resources import CompressedResourceOp as _CompressedResourceOp
 from pennylane.labs.resource_estimation import ResourceOperator
 
 
-class CompressedResourceOp:
+class CompressedResourceOp(_CompressedResourceOp):  # pylint: disable=too-few-public-methods
     r"""Instantiate the light weight class corresponding to the operator type and parameters.
 
     Args:
@@ -38,7 +38,7 @@ class CompressedResourceOp:
         Hadamard(num_wires=1)
     """
 
-    def __init__(self, op_type, params: dict) -> None:
+    def __init__(self, op_type, params: dict, name=None) -> None:
         r"""Instantiate the light weight class corresponding to the operator type and parameters.
 
         Args:
@@ -59,25 +59,14 @@ class CompressedResourceOp:
         if not issubclass(op_type, ResourceOperator):
             raise TypeError(f"op_type must be a subclass of ResourceOperator. Got {op_type}.")
 
-        self._name = (op_type.__name__).replace("Resource", "")
-        self.op_type = op_type
-        self.params = params
-        self._hashable_params = tuple(params.items())
-
-    def __hash__(self) -> int:
-        return hash((self._name, self._hashable_params))
-
-    def __eq__(self, other: object) -> bool:
-        return (self.op_type == other.op_type) and (self.params == other.params)
+        super().__init__(op_type, params)
+        self._name = name or op_type.tracking_name(**params)
 
     def __repr__(self) -> str:
-        op_type_str = self._name + "("
-        params_str = ", ".join([f"{key}={self.params[key]}" for key in self.params]) + ")"
-
-        return op_type_str + params_str
+        return self._name
 
 
-@dataclass
+# @dataclass
 class Resources:
     r"""Contains attributes which store key resources such as number of gates, number of wires, and gate types.
 
@@ -90,7 +79,7 @@ class Resources:
     .. details::
 
         The resources being tracked can be accessed as class attributes.
-        Additionally, the :code:`Resources` instance can be nicely displayed in the console.
+        Additionally, the :class:`~.Resources` instance can be nicely displayed in the console.
 
         **Example**
 
@@ -121,6 +110,15 @@ class Resources:
         """Add two resources objects in series"""
         return add_in_series(self, other)
 
+    def __eq__(self, other: "Resources") -> bool:
+        """Test if two resource objects are equal"""
+        if self.num_wires != other.num_wires:
+            return False
+        if self.num_gates != other.num_gates:
+            return False
+
+        return self.gate_types == other.gate_types
+
     def __mul__(self, scalar: int) -> "Resources":
         """Scale a resources object in series"""
         return mul_in_series(self, scalar)
@@ -149,6 +147,14 @@ class Resources:
         )
         items += "\ngate_types:\n{" + gate_type_str + "}"
         return items
+
+    def __repr__(self):
+        """Compact string representation of the Resources object"""
+        return {
+            "gate_types": self.gate_types,
+            "num_gates": self.num_gates,
+            "num_wires": self.num_wires,
+        }.__repr__()
 
     def _ipython_display_(self):
         """Displays __str__ in ipython instead of __repr__"""
@@ -248,13 +254,15 @@ def mul_in_parallel(first: Resources, scalar: int, in_place=False) -> Resources:
 def substitute(
     initial_resources: Resources, gate_name: str, replacement_resources: Resources, in_place=False
 ) -> Resources:
-    """Replaces a specified gate in a :class:`~.resource.Resources` object with the contents of another :class:`~.resource.Resources` object.
+    """Replaces a specified gate in a :class:`~.resource.Resources` object with the contents of
+    another :class:`~.resource.Resources` object.
 
     Args:
         initial_resources (Resources): the resources to be modified
         gate_name (str): the name of the operation to be replaced
         replacement (Resources): the resources to be substituted instead of the gate
-        in_place (bool): determines if the initial resources are modified in place or if a new copy is created
+        in_place (bool): determines if the initial resources are modified in place or if a new copy is
+            created
 
     Returns:
         Resources: the updated :class:`~.Resources` after substitution
@@ -263,7 +271,7 @@ def substitute(
 
         **Example**
 
-        In this example we replace the resources for the :code:`RX` gate. First we build the :class:`~.Resources`:
+        In this example we replace the resources for the :code:`RX` gate:
 
         .. code-block:: python3
 

@@ -1,3 +1,5 @@
+:og:description: Accelerate your adoption of PennyLane! Find clear, concise, accessible, and current information that will help you understand, use, and troubleshoot issues.
+
 PennyLane Documentation
 =======================
 
@@ -196,6 +198,7 @@ PennyLane is **free** and **open source**, released under the Apache License, Ve
    code/qml_bose
    code/qml_compiler
    code/qml_data
+   code/qml_decomposition
    code/qml_debugging
    code/qml_drawer
    code/qml_fermi
@@ -203,6 +206,7 @@ PennyLane is **free** and **open source**, released under the Apache License, Ve
    code/qml_gradients
    code/qml_kernels
    code/qml_labs
+   code/qml_liealg
    code/qml_logging
    code/qml_math
    code/qml_noise
@@ -218,6 +222,7 @@ PennyLane is **free** and **open source**, released under the Apache License, Ve
    code/qml_qchem
    code/qml_qnn
    code/qml_spin
+   code/qml_io
    
 .. toctree::
    :maxdepth: 1
@@ -226,6 +231,7 @@ PennyLane is **free** and **open source**, released under the Apache License, Ve
 
    code/qml_capture
    code/qml_devices
+   code/qml_ftqc
    code/qml_measurements
    code/qml_pytrees
    code/qml_operation
